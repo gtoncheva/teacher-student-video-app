@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "948454936049",
+    "firebase_url": "https://teacherstudentvideoapp.firebaseio.com",
+    "project_id": "teacherstudentvideoapp",
+    "storage_bucket": "teacherstudentvideoapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948454936049:android:956ec0d9b64d296d384850",
+        "android_client_info": {
+          "package_name": "android.com.teacherstudentvideoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "948454936049-bfbce6mhgab810orepbin30qgjvq5v52.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB76oROzdKEopSBgNcRY8lB4Km1rwEiwjI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "948454936049-bfbce6mhgab810orepbin30qgjvq5v52.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
