@@ -1,4 +1,4 @@
-package android.com.teacherstudentvideoapp
+package com.searonix.teacherStudentVideoApp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("android.com.teacherstudentvideoapp", appContext.packageName)
+        assertEquals("com.searonix.teacherStudentVideoApp", appContext.packageName)
     }
 }

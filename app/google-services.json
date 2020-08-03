@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "948454936049",
-    "firebase_url": "https://teacherstudentvideoapp.firebaseio.com",
-    "project_id": "teacherstudentvideoapp",
-    "storage_bucket": "teacherstudentvideoapp.appspot.com"
+    "project_number": "7934639834",
+    "firebase_url": "https://teacherstudentvideoapp-a0b58.firebaseio.com",
+    "project_id": "teacherstudentvideoapp-a0b58",
+    "storage_bucket": "teacherstudentvideoapp-a0b58.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:948454936049:android:956ec0d9b64d296d384850",
+        "mobilesdk_app_id": "1:7934639834:android:360dbe49c11b1618266fe3",
         "android_client_info": {
-          "package_name": "android.com.teacherstudentvideoapp"
+          "package_name": "com.searonix.teacherStudentVideoApp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "948454936049-bfbce6mhgab810orepbin30qgjvq5v52.apps.googleusercontent.com",
+          "client_id": "7934639834-pjq4oofq103d6g0a8ijub623thig938m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB76oROzdKEopSBgNcRY8lB4Km1rwEiwjI"
+          "current_key": "AIzaSyDwTgQ6RNcS7v56hPdi0ffduKiWoQFgmwE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "948454936049-bfbce6mhgab810orepbin30qgjvq5v52.apps.googleusercontent.com",
+              "client_id": "7934639834-pjq4oofq103d6g0a8ijub623thig938m.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

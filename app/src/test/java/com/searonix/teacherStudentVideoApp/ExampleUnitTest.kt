@@ -1,4 +1,4 @@
-package android.com.teacherstudentvideoapp
+package com.searonix.teacherStudentVideoApp
 
 import org.junit.Test
 
