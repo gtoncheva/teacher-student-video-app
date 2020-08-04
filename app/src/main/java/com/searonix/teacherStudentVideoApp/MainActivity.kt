@@ -1,4 +1,4 @@
-package com.searonix.teacherStudentVideoApp
+package com.searonix.teacherstudentvideoapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
