@@ -14,6 +14,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import com.facebook.FacebookSdk
+import com.facebook.appevents.AppEventsLogger
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,21 +26,45 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //button and menu set up
+        button_sign_out.setOnClickListener(){
+            AuthUI.getInstance().signOut(this@MainActivity)
+                .addOnCompleteListener {
+                    button_sign_out.isEnabled = false
+                    showSignInOptions()
+                }
+                .addOnFailureListener{
+                    e-> Toast.makeText(this@MainActivity, e.message,Toast.LENGTH_SHORT).show()
+
+                }
+
+        }
+
+
         //create AuthUi intent
         providers = Arrays.asList<AuthUI.IdpConfig> (
             AuthUI.IdpConfig.EmailBuilder().build(), //email login
-            AuthUI.IdpConfig.PhoneBuilder().build(), //phone login
-            AuthUI.IdpConfig.GoogleBuilder().build() //google login
-            //AuthUI.IdpConfig.FacebookBuilder().build(), //facebook login
-            //AuthUI.IdpConfig.TwitterBuilder().build() //twitter login
+            AuthUI.IdpConfig.GoogleBuilder().build(), //google login
+            AuthUI.IdpConfig.FacebookBuilder().build() //facebook login
         )
 
-        showsigninoptions()
+        //check if user is logged in/registered
+        val user = Firebase.auth.currentUser
+        if (user == null) //not logged in
+        {
+            //show login/register options, hide button
+            button_sign_out.isEnabled = false
+            showSignInOptions()
+        }
+        else {
+            //stay on page and show logout button
+            button_sign_out.isEnabled = true
 
-        //button_sign_out.setOnClickListener(){}
+        }
+
     }
 
-    private fun showsigninoptions(){
+    private fun showSignInOptions(){
         // Create and launch sign-in intent
         startActivityForResult(
             AuthUI.getInstance()
@@ -59,13 +85,17 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
-                //button_sign_out.isEnabled = true
-                // ...
+                Toast.makeText(this, ""+user!!.email, Toast.LENGTH_SHORT).show()
+                button_sign_out.isEnabled = true
+
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
-                // ...
+
+                // user has cancelled or gone back, so just finish() to end activity
+                Toast.makeText(this, ""+response!!.error!!.message, Toast.LENGTH_SHORT).show()
+                //finish()
             }
         }
     }
@@ -88,6 +118,5 @@ class MainActivity : AppCompatActivity() {
                 // ...
             }
     }
-
 
 }

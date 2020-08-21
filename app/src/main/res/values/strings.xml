@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TeacherStudentVideoApp</string>
+    <string name="facebook_application_id">
+        637333313579015
+    </string>
+    <string name="fb_login_protocol_scheme">
+        fb637333313579015
+    </string>
 </resources>
