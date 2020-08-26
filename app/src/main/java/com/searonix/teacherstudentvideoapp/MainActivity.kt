@@ -5,6 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
@@ -16,6 +19,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
+import kotlin.math.sign
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,20 +29,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        //button and menu set up
-        button_sign_out.setOnClickListener(){
-            AuthUI.getInstance().signOut(this@MainActivity)
-                .addOnCompleteListener {
-                    button_sign_out.isEnabled = false
-                    showSignInOptions()
-                }
-                .addOnFailureListener{
-                    e-> Toast.makeText(this@MainActivity, e.message,Toast.LENGTH_SHORT).show()
-
-                }
-
-        }
 
 
         //create AuthUi intent
@@ -50,18 +40,38 @@ class MainActivity : AppCompatActivity() {
 
         //check if user is logged in/registered
         val user = Firebase.auth.currentUser
-        if (user == null) //not logged in
+        if (user == null || user.isAnonymous) //not logged or user is anonymously logged in
         {
-            //show login/register options, hide button
-            button_sign_out.isEnabled = false
+            //show login/register options
             showSignInOptions()
+
         }
         else {
-            //stay on page and show logout button
-            button_sign_out.isEnabled = true
+            //show menu with logout options
 
         }
 
+    }
+
+//Menu Section
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    //inflate menu, this will add items to action bar
+    val inflater: MenuInflater = menuInflater
+    inflater.inflate(R.menu.mainmenu, menu)
+    return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.sign_out_button -> {
+                signOut()
+                showSignInOptions()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun showSignInOptions(){
@@ -84,18 +94,28 @@ class MainActivity : AppCompatActivity() {
 
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
+
+                //get user and then check if user is anonymous or not
                 val user = FirebaseAuth.getInstance().currentUser
-                Toast.makeText(this, ""+user!!.email, Toast.LENGTH_SHORT).show()
-                button_sign_out.isEnabled = true
+                if (user != null) {
+                    if (user.isAnonymous){
+                        showSignInOptions()
+                    }
+                    else {
+                        Toast.makeText(this, "${user.email} has successfully Signed In", Toast.LENGTH_SHORT).show()
+                    }
+                }
 
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
-
-                // user has cancelled or gone back, so just finish() to end activity
-                Toast.makeText(this, ""+response!!.error!!.message, Toast.LENGTH_SHORT).show()
-                //finish()
+                if (response==null){
+                    finish()
+                }
+                else {
+                    //Sign in failed due to some other reason
+                }
             }
         }
     }
@@ -105,15 +125,6 @@ class MainActivity : AppCompatActivity() {
         // authUI signout
         AuthUI.getInstance()
             .signOut(this)
-            .addOnCompleteListener {
-                // ...
-            }
-    }
-
-    private fun delete() {
-        // authUI delete
-        AuthUI.getInstance()
-            .delete(this)
             .addOnCompleteListener {
                 // ...
             }
