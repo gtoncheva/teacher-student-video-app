@@ -12,7 +12,7 @@
         android:id="@+id/logged_in_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text='"You are now Logged in"'
+        android:text="@string/login_str"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="364dp" />

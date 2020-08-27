@@ -4,7 +4,6 @@ package com.searonix.teacherstudentvideoapp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -15,11 +14,7 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import com.facebook.FacebookSdk
-import com.facebook.appevents.AppEventsLogger
-import kotlin.math.sign
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         else {
-            //show menu with logout options
+            //do nothing
 
         }
 
@@ -57,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
     //inflate menu, this will add items to action bar
     val inflater: MenuInflater = menuInflater
-    inflater.inflate(R.menu.mainmenu, menu)
+    inflater.inflate(R.menu.main_menu, menu)
     return true
     }
 
@@ -66,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.sign_out_button -> {
                 signOut()
-                showSignInOptions()
                 true
             }
 
@@ -102,20 +96,14 @@ class MainActivity : AppCompatActivity() {
                         showSignInOptions()
                     }
                     else {
-                        Toast.makeText(this, "${user.email} has successfully Signed In", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "${user.email} has successfully signed in", Toast.LENGTH_SHORT).show()
                     }
                 }
 
             } else {
                 // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                if (response==null){
-                    finish()
-                }
-                else {
-                    //Sign in failed due to some other reason
-                }
+                // sign-in flow using the back button.
+                finish()
             }
         }
     }
@@ -126,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         AuthUI.getInstance()
             .signOut(this)
             .addOnCompleteListener {
-                // ...
+                showSignInOptions()
             }
     }
 

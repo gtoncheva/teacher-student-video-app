@@ -6,4 +6,10 @@
     <string name="fb_login_protocol_scheme">
         fb637333313579015
     </string>
+    <string name="login_str">
+    You are logged in
+    </string>
+    <string name="logout_str">
+    Logout
+    </string>
 </resources>
