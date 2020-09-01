@@ -9,7 +9,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_profile.*
 
-val USERNAME_KEY = "sample"
+const val USERNAME_KEY = "sample"
 
 class ProfileActivity: AppCompatActivity()  {
     val LAUNCH_EDIT_PROFILE_ACTIVITY = 612
