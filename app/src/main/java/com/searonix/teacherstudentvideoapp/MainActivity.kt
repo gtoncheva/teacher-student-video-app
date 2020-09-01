@@ -59,6 +59,11 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection
         return when (item.itemId) {
+            R.id.profile_button -> {
+                val startProfileActivity = Intent(this, ProfileActivity::class.java)
+                startActivity(startProfileActivity)
+                true
+            }
             R.id.sign_out_button -> {
                 signOut()
                 true
