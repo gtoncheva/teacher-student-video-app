@@ -3,10 +3,13 @@ package com.searonix.teacherstudentvideoapp
 //import com.google.firebase.quickstart.auth.R
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
@@ -14,17 +17,27 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var providers: List<AuthUI.IdpConfig>
     val RC_SIGN_IN = 413
+    //camera fun
+    val REQUEST_IMAGE_CAPTURE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Action Button for Camera
+        //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.
+        val fab: View = findViewById(R.id.fab)
+        fab.setOnClickListener {
+            //camera
+            dispatchTakePictureIntent()
+        }
 
         //create AuthUi intent
         providers = Arrays.asList<AuthUI.IdpConfig> (
@@ -47,6 +60,17 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+
+//camera fun
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            }
+        }
+    }
+
 
 //Menu Section
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -110,6 +134,11 @@ class MainActivity : AppCompatActivity() {
                 // sign-in flow using the back button.
                 finish()
             }
+        }
+        //handle to return intent from camera (thumbnail)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            imageView.setImageBitmap(imageBitmap)
         }
     }
     // [END auth_fui_result]
