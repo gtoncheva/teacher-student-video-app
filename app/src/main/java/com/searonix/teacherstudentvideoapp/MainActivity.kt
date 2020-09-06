@@ -1,24 +1,34 @@
 package com.searonix.teacherstudentvideoapp
 
-//import com.google.firebase.quickstart.auth.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +36,9 @@ class MainActivity : AppCompatActivity() {
     val RC_SIGN_IN = 413
     //camera fun
     val REQUEST_IMAGE_CAPTURE = 1
+    val REQUEST_TAKE_PHOTO = 12
+    lateinit var currentPhotoPath: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,15 +74,50 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //camera create image file
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
 
 //camera fun
-    private fun dispatchTakePictureIntent() {
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(packageManager)?.also {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+private fun dispatchTakePictureIntent() {
+    Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+        // Ensure that there's a camera activity to handle the intent
+        takePictureIntent.resolveActivity(packageManager)?.also {
+            // Create the File where the photo should go
+            val photoFile: File? = try {
+                createImageFile()
+            } catch (ex: IOException) {
+                // Error occurred while creating the File
+                //...
+                Log.e("IOEceptiopn", ex.message)
+                null
+            }
+            // Continue only if the File was successfully created
+            photoFile?.also {
+                val photoURI: Uri = FileProvider.getUriForFile(
+                    this,
+                    "com.searonix.teacherstudentvideoapp.fileprovider",
+                    it
+                )
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
             }
         }
     }
+}
 
 
 //Menu Section
@@ -109,6 +157,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // [START auth_fui_result]
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -135,10 +184,23 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
-        //handle to return intent from camera (thumbnail)
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
-            imageView.setImageBitmap(imageBitmap)
+        //handle return intent from camera, set picture taken as bitmap and put in imageview
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            //get uri from file
+            val f = File(currentPhotoPath)
+            val contentUri = Uri.fromFile(f)
+
+            //convert uri into bitmap
+            if (android.os.Build.VERSION.SDK_INT >= 29){
+                // Use newer version
+                val source = ImageDecoder.createSource(this.contentResolver, contentUri)
+                val mBitmap = ImageDecoder.decodeBitmap(source)
+                imageView.setImageBitmap(mBitmap)}
+            else{
+                // Use older version
+                val mBitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentUri)
+                imageView.setImageBitmap(mBitmap)
+            }
         }
     }
     // [END auth_fui_result]
