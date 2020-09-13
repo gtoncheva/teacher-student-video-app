@@ -134,7 +134,8 @@ private fun dispatchTakePictureIntent() {
                     it
                 )
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+                val chooser = Intent.createChooser(takePictureIntent, "Please, select") // get it from strings!
+                startActivityForResult(chooser, REQUEST_TAKE_PHOTO)
             }
         }
     }
