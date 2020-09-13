@@ -130,11 +130,12 @@ private fun dispatchTakePictureIntent() {
             photoFile?.also {
                 val photoURI: Uri = FileProvider.getUriForFile(
                     this,
-                    "com.searonix.teacherstudentvideoapp.fileprovider",
+                    getString(R.string.fileprovider_authority_label),
                     it
                 )
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                val chooser = Intent.createChooser(takePictureIntent, "Please, select") // get it from strings!
+                val chooser = Intent.createChooser(takePictureIntent, getString(R.string.choose_pixel_label))
                 startActivityForResult(chooser, REQUEST_TAKE_PHOTO)
             }
         }
@@ -189,7 +190,7 @@ private fun dispatchTakePictureIntent() {
                 }
 
                 else{
-                    Toast.makeText(this, "You cannot take pictures as you have chosen to deny camera permission.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.user_deny_text), Toast.LENGTH_SHORT).show()
                 }
                 return
             }

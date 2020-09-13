@@ -7,4 +7,7 @@
     <string name="edit_button_label">Edit</string>
     <string name="submit_button_label">Submit</string>
     <string name="profile_label">Profile</string>
+    <string name="choose_pixel_label">Please, select</string>
+    <string name="user_deny_text">You cannot take pictures as you have chosen to deny camera permission.</string>
+    <string name="fileprovider_authority_label">com.searonix.teacherstudentvideoapp.fileprovider</string>
 </resources>
