@@ -2,6 +2,7 @@ package com.searonix.teacherstudentvideoapp
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -17,6 +18,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
@@ -28,14 +30,15 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
 
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var providers: List<AuthUI.IdpConfig>
-    val RC_SIGN_IN = 413
+    val REQUEST_SIGN_IN = 413
     //camera fun
-    val REQUEST_IMAGE_CAPTURE = 1
+    val REQUEST_CAMERA_PERMISSION = 1
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
 
@@ -48,8 +51,25 @@ class MainActivity : AppCompatActivity() {
         //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.
         val fab: View = findViewById(R.id.fab)
         fab.setOnClickListener {
-            //camera
-            dispatchTakePictureIntent()
+            //check for camera permissions
+            //requires version 23 and up
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //check if permissions have been granted
+                if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )&&
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==PackageManager.PERMISSION_GRANTED) {
+                //can start camera
+                dispatchTakePictureIntent()
+                }
+                else {
+                    //cannot start camera, ask for camera and external storage permissions
+                    ActivityCompat.requestPermissions(this,
+                        arrayOf(android.Manifest.permission.CAMERA),
+                        REQUEST_CAMERA_PERMISSION)
+                }
+            }
+            else {
+                dispatchTakePictureIntent()
+            }
         }
 
         //create AuthUi intent
@@ -71,6 +91,7 @@ class MainActivity : AppCompatActivity() {
             //do nothing
 
         }
+
 
     }
 
@@ -152,16 +173,34 @@ private fun dispatchTakePictureIntent() {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .build(),
-            RC_SIGN_IN)
+            REQUEST_SIGN_IN)
         // [END authUI intent]
     }
 
+    // Receive the permissions request result
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_CAMERA_PERMISSION ->{
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    //call camera
+                    dispatchTakePictureIntent()
+                }
+
+                else{
+                    Toast.makeText(this, "You cannot take pictures as you have chosen to deny camera permission.", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
+        }
+    }
+
+
     // [START auth_fui_result]
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == REQUEST_SIGN_IN) {
             val response = IdpResponse.fromResultIntent(data)
 
             if (resultCode == Activity.RESULT_OK) {
