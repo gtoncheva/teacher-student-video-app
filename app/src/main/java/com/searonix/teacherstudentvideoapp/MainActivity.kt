@@ -1,30 +1,76 @@
 package com.searonix.teacherstudentvideoapp
 
-//import com.google.firebase.quickstart.auth.R
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
+
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var providers: List<AuthUI.IdpConfig>
-    val RC_SIGN_IN = 413
+    val REQUEST_SIGN_IN = 413
+    //camera fun
+    val REQUEST_CAMERA_PERMISSION = 1
+    val REQUEST_TAKE_PHOTO = 12
+    lateinit var currentPhotoPath: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Action Button for Camera
+        //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.
+        val fab: View = findViewById(R.id.fab)
+        fab.setOnClickListener {
+            //check for camera permissions
+            //requires version 23 and up
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //check if permissions have been granted
+                if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )&&
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==PackageManager.PERMISSION_GRANTED) {
+                //can start camera
+                dispatchTakePictureIntent()
+                }
+                else {
+                    //cannot start camera, ask for camera and external storage permissions
+                    ActivityCompat.requestPermissions(this,
+                        arrayOf(android.Manifest.permission.CAMERA),
+                        REQUEST_CAMERA_PERMISSION)
+                }
+            }
+            else {
+                dispatchTakePictureIntent()
+            }
+        }
 
         //create AuthUi intent
         providers = Arrays.asList<AuthUI.IdpConfig> (
@@ -46,7 +92,55 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+
     }
+
+    //camera create image file
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
+
+//camera fun
+private fun dispatchTakePictureIntent() {
+    Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+        // Ensure that there's a camera activity to handle the intent
+        takePictureIntent.resolveActivity(packageManager)?.also {
+            // Create the File where the photo should go
+            val photoFile: File? = try {
+                createImageFile()
+            } catch (ex: IOException) {
+                // Error occurred while creating the File
+                //...
+                Log.e("IOEceptiopn", ex.message)
+                null
+            }
+            // Continue only if the File was successfully created
+            photoFile?.also {
+                val photoURI: Uri = FileProvider.getUriForFile(
+                    this,
+                    "com.searonix.teacherstudentvideoapp.fileprovider",
+                    it
+                )
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                val chooser = Intent.createChooser(takePictureIntent, "Please, select") // get it from strings!
+                startActivityForResult(chooser, REQUEST_TAKE_PHOTO)
+            }
+        }
+    }
+}
+
 
 //Menu Section
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -80,15 +174,34 @@ class MainActivity : AppCompatActivity() {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .build(),
-            RC_SIGN_IN)
+            REQUEST_SIGN_IN)
         // [END authUI intent]
     }
+
+    // Receive the permissions request result
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_CAMERA_PERMISSION ->{
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    //call camera
+                    dispatchTakePictureIntent()
+                }
+
+                else{
+                    Toast.makeText(this, "You cannot take pictures as you have chosen to deny camera permission.", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
+        }
+    }
+
 
     // [START auth_fui_result]
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == REQUEST_SIGN_IN) {
             val response = IdpResponse.fromResultIntent(data)
 
             if (resultCode == Activity.RESULT_OK) {
@@ -109,6 +222,24 @@ class MainActivity : AppCompatActivity() {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button.
                 finish()
+            }
+        }
+        //handle return intent from camera, set picture taken as bitmap and put in imageview
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            //get uri from file
+            val f = File(currentPhotoPath)
+            val contentUri = Uri.fromFile(f)
+
+            //convert uri into bitmap
+            if (android.os.Build.VERSION.SDK_INT >= 29){
+                // Use newer version
+                val source = ImageDecoder.createSource(this.contentResolver, contentUri)
+                val mBitmap = ImageDecoder.decodeBitmap(source)
+                imageView.setImageBitmap(mBitmap)}
+            else{
+                // Use older version
+                val mBitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentUri)
+                imageView.setImageBitmap(mBitmap)
             }
         }
     }
