@@ -1,10 +1,9 @@
 package com.searonix.teacherstudentvideoapp
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,7 +15,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
@@ -25,12 +23,10 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import android.Manifest
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     val REQUEST_CAMERA_PERMISSION = 1
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
+    val pathnameString = "/data/data/com.searonix.teacherstudentvideoapp/${Firebase.auth.uid}/"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +48,13 @@ class MainActivity : AppCompatActivity() {
         //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.
         val fab: View = findViewById(R.id.fab)
         fab.setOnClickListener {
+            //check for image directory for user, if not there create it
+            val userImageDirectory = File(pathnameString)
+            if (!userImageDirectory.exists()){
+                userImageDirectory.mkdir()
+                Toast.makeText(this, "new user directory made at $userImageDirectory for ${Firebase.auth.uid}", Toast.LENGTH_SHORT).show()
+            }
+
             //check for camera permissions
             //requires version 23 and up
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -107,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             storageDir /* directory */
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
+            currentPhotoPath = pathnameString
         }
     }
 
@@ -216,6 +220,9 @@ private fun dispatchTakePictureIntent() {
                     }
                     else {
                         Toast.makeText(this, "${user.email} has successfully signed in", Toast.LENGTH_SHORT).show()
+
+                        //check for image directory for user, if yes show list of pictures
+
                     }
                 }
 
@@ -226,6 +233,7 @@ private fun dispatchTakePictureIntent() {
             }
         }
         //handle return intent from camera, set picture taken as bitmap and put in imageview
+       /*
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             //get uri from file
             val f = File(currentPhotoPath)
@@ -242,7 +250,10 @@ private fun dispatchTakePictureIntent() {
                 val mBitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentUri)
                 imageView.setImageBitmap(mBitmap)
             }
+
         }
+        */
+
     }
     // [END auth_fui_result]
 
