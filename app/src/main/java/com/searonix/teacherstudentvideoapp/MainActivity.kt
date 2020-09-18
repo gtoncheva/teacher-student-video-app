@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     val REQUEST_CAMERA_PERMISSION = 1
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
-    val pathnameString = "/data/data/com.searonix.teacherstudentvideoapp/${Firebase.auth.uid}/"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,11 +48,15 @@ class MainActivity : AppCompatActivity() {
         val fab: View = findViewById(R.id.fab)
         fab.setOnClickListener {
             //check for image directory for user, if not there create it
-            val userImageDirectory = File(pathnameString)
+            currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+            val userImageDirectory = File(currentPhotoPath)
             if (!userImageDirectory.exists()){
                 userImageDirectory.mkdir()
-                Toast.makeText(this, "new user directory made at $userImageDirectory for ${Firebase.auth.uid}", Toast.LENGTH_SHORT).show()
+                Log.v("DirectoryCreationCheck", " LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
             }
+            var counts = File(currentPhotoPath).listFiles().count().toString()
+            Log.v("Counts", counts)
+            Log.v("DirectoryCreationCheck", " LOCATION OF DIRECTORY: " +currentPhotoPath)
 
             //check for camera permissions
             //requires version 23 and up
@@ -104,14 +107,14 @@ class MainActivity : AppCompatActivity() {
     private fun createImageFile(): File {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES + "/${Firebase.auth.uid}")
         return File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = pathnameString
+            currentPhotoPath = storageDir.toString()
         }
     }
 
