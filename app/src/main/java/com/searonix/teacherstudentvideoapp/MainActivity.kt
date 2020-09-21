@@ -47,34 +47,43 @@ class MainActivity : AppCompatActivity() {
         //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.
         val fab: View = findViewById(R.id.fab)
         fab.setOnClickListener {
-            //check for image directory for user, if not there create it
-            currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
-            val userImageDirectory = File(currentPhotoPath)
-            if (!userImageDirectory.exists()){
-                userImageDirectory.mkdir()
-                Log.v("DirectoryCreationCheck", " LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
-            }
-            var counts = File(currentPhotoPath).listFiles().count().toString()
-            Log.v("Counts", counts)
-            Log.v("DirectoryCreationCheck", " LOCATION OF DIRECTORY: " +currentPhotoPath)
-
-            //check for camera permissions
             //requires version 23 and up
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //check if permissions have been granted
-                if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )&&
-                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==PackageManager.PERMISSION_GRANTED) {
-                //can start camera
-                dispatchTakePictureIntent()
+                if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )){
+                    //check for image directory for user, if not there create it
+                    currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+                    val userImageDirectory = File(currentPhotoPath)
+                    if (!userImageDirectory.exists()){
+                        userImageDirectory.mkdir()
+                        Log.v("DirectoryCreationCheck", ">23 (created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
+                    }
+                    var counts = File(currentPhotoPath).listFiles().count().toString()
+                    Log.v("DirectoryCreationCheck", ">23 Number of images in folder: " + counts)
+                    Log.v("DirectoryCreationCheck", ">23 (already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
+
+                    //can start camera
+                    dispatchTakePictureIntent()
                 }
                 else {
-                    //cannot start camera, ask for camera and external storage permissions
+                    //cannot start camera, ask for camera permissions
                     ActivityCompat.requestPermissions(this,
-                        arrayOf(android.Manifest.permission.CAMERA),
+                        arrayOf(Manifest.permission.CAMERA),
                         REQUEST_CAMERA_PERMISSION)
                 }
             }
             else {
+                //doesnt require version 23 or up
+                //check for image directory for user, if not there create it
+                currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+                val userImageDirectory = File(currentPhotoPath)
+                if (!userImageDirectory.exists()){
+                    userImageDirectory.mkdir()
+                    Log.v("DirectoryCreationCheck", "<23 (created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
+                }
+                var counts = File(currentPhotoPath).listFiles().count().toString()
+                Log.v("DirectoryCreationCheck", "<23 Number of images in folder: " + counts)
+                Log.v("DirectoryCreationCheck", "<23 (already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
                 dispatchTakePictureIntent()
             }
         }
@@ -223,9 +232,6 @@ private fun dispatchTakePictureIntent() {
                     }
                     else {
                         Toast.makeText(this, "${user.email} has successfully signed in", Toast.LENGTH_SHORT).show()
-
-                        //check for image directory for user, if yes show list of pictures
-
                     }
                 }
 
@@ -235,28 +241,6 @@ private fun dispatchTakePictureIntent() {
                 finish()
             }
         }
-        //handle return intent from camera, set picture taken as bitmap and put in imageview
-       /*
-        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            //get uri from file
-            val f = File(currentPhotoPath)
-            val contentUri = Uri.fromFile(f)
-
-            //convert uri into bitmap
-            if (android.os.Build.VERSION.SDK_INT >= 29){
-                // Use newer version
-                val source = ImageDecoder.createSource(this.contentResolver, contentUri)
-                val mBitmap = ImageDecoder.decodeBitmap(source)
-                imageView.setImageBitmap(mBitmap)}
-            else{
-                // Use older version
-                val mBitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentUri)
-                imageView.setImageBitmap(mBitmap)
-            }
-
-        }
-        */
-
     }
     // [END auth_fui_result]
 
