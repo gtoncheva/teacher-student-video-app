@@ -52,17 +52,8 @@ class MainActivity : AppCompatActivity() {
                 //check if permissions have been granted
                 if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )){
                     //check for image directory for user, if not there create it
-                    currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
-                    val userImageDirectory = File(currentPhotoPath)
-                    if (!userImageDirectory.exists()){
-                        userImageDirectory.mkdir()
-                        Log.v("DirectoryCreationCheck", ">23 (created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
-                    }
-                    var counts = File(currentPhotoPath).listFiles().count().toString()
-                    Log.v("DirectoryCreationCheck", ">23 Number of images in folder: " + counts)
-                    Log.v("DirectoryCreationCheck", ">23 (already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
-
-                    //can start camera
+                    directoryCreateAndCheck()
+                    //take picture
                     dispatchTakePictureIntent()
                 }
                 else {
@@ -75,15 +66,8 @@ class MainActivity : AppCompatActivity() {
             else {
                 //doesnt require version 23 or up
                 //check for image directory for user, if not there create it
-                currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
-                val userImageDirectory = File(currentPhotoPath)
-                if (!userImageDirectory.exists()){
-                    userImageDirectory.mkdir()
-                    Log.v("DirectoryCreationCheck", "<23 (created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
-                }
-                var counts = File(currentPhotoPath).listFiles().count().toString()
-                Log.v("DirectoryCreationCheck", "<23 Number of images in folder: " + counts)
-                Log.v("DirectoryCreationCheck", "<23 (already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
+                directoryCreateAndCheck()
+                //take picture
                 dispatchTakePictureIntent()
             }
         }
@@ -244,6 +228,19 @@ private fun dispatchTakePictureIntent() {
     }
     // [END auth_fui_result]
 
+    private fun directoryCreateAndCheck() {
+        //checks for image directory for current user, if its not there, it is created
+        currentPhotoPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+        val userImageDirectory = File(currentPhotoPath)
+        if (!userImageDirectory.exists()){
+            userImageDirectory.mkdir()
+            Log.v("DirectoryCreationCheck", "(created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
+        }
+        var counts = File(currentPhotoPath).listFiles().count().toString()
+        Log.v("DirectoryCreationCount", "Number of images in folder: " + counts)
+        Log.v("DirectoryCreationCheck", "(already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
+    }
+    
     private fun signOut() {
         // authUI signout
         AuthUI.getInstance()
