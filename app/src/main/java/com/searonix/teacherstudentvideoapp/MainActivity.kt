@@ -14,10 +14,14 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.OnLifecycleEvent
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +29,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,6 +43,11 @@ class MainActivity : AppCompatActivity() {
     val REQUEST_CAMERA_PERMISSION = 1
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
+    val arrayOfFiles: MutableList<String> = ArrayList()
+    //initialize listview
+    lateinit var listviewOfFiles: ListView
+    //initialize adapter
+    lateinit var arrayAdapter: ArrayAdapter<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +100,6 @@ class MainActivity : AppCompatActivity() {
         }
         else {
             //do nothing
-
         }
 
 
@@ -225,6 +235,35 @@ private fun dispatchTakePictureIntent() {
                 finish()
             }
         }
+        if (requestCode==REQUEST_TAKE_PHOTO){
+            if (resultCode==Activity.RESULT_OK){
+                //successful camera picture, do nothing
+
+            }
+
+            else{
+                //camera did not take picture
+                //Array path set up to delete temp files first
+                val path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+                //directory
+                val directory = File(path)
+                if (directory.exists()) {
+                    //check if directory exists
+                    val files = directory.listFiles()
+                    if (!files.isNullOrEmpty()) {
+                        //folder not empty or null
+                        for (f in files){
+                            if (f.length().toInt()==0){
+                                f.delete()
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+        }
     }
     // [END auth_fui_result]
 
@@ -240,7 +279,41 @@ private fun dispatchTakePictureIntent() {
         Log.v("DirectoryCreationCount", "Number of images in folder: " + counts)
         Log.v("DirectoryCreationCheck", "(already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
     }
-    
+
+
+    private fun countFilesinDirectoryandImageview(){
+        //check if directory exists and count pics in folder if yes
+
+        //Array path set up
+        val path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
+        //set listview
+        listviewOfFiles = findViewById(R.id.list_view_for_images)
+        //directory find
+        val directory = File(path)
+
+        Log.d("Count Files", "Path: $path")
+        if (directory.exists()) {
+            //check if directory exists
+            val files = directory.listFiles()
+            if (files.isNullOrEmpty()) {
+                //folder does not have files yet
+                //do nothing or return empty arraylist
+                Log.v("Count Files", "Empty, Number of pics in folder: " + files.size)
+            } else {
+                //folder has files in it, add them to existing array
+                Log.v("Count Files", "Not empty, Number of pics in folder: " + files.size)
+                for (i in files.indices) {
+                    arrayOfFiles.add(files[i].name)
+                    Log.v("Count Files", "Added FileName:" + files[i].name)
+                }
+
+            }
+        }
+        else{
+            //directory does not exist
+        }
+    }
+
     private fun signOut() {
         // authUI signout
         AuthUI.getInstance()
@@ -248,6 +321,27 @@ private fun dispatchTakePictureIntent() {
             .addOnCompleteListener {
                 showSignInOptions()
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //clear arraylist and get directory count
+        //clear arraylist
+        arrayOfFiles.clear()
+        //get number of files in directory
+        countFilesinDirectoryandImageview()
+        //set adapter
+        arrayAdapter = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_list_item_1,
+            arrayOfFiles
+        )
+        listviewOfFiles.adapter = arrayAdapter
+        arrayAdapter.notifyDataSetChanged()
+
+        Log.v("ArrayCheck", "array result: " + arrayOfFiles)
+
     }
 
 }
