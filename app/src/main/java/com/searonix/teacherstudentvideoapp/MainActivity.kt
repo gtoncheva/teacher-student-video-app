@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var providers: List<AuthUI.IdpConfig>
     val REQUEST_SIGN_IN = 413
     //camera fun
-    val REQUEST_CAMERA_PERMISSION = 1
+    val REQUEST_PERMISSION = 1
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
     val arrayOfFiles: MutableList<String> = ArrayList()
@@ -60,18 +60,22 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             //requires version 23 and up
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                //check if permissions have been granted
-                if((checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED )){
+                //check if permissions have not been granted
+                if ((checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED )
+                    || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    //cannot start camera, ask for permissions
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        REQUEST_PERMISSION)
+                }
+
+                else {
+                    //all permissions granted
                     //check for image directory for user, if not there create it
                     directoryCreateAndCheck()
                     //take picture
                     dispatchTakePictureIntent()
-                }
-                else {
-                    //cannot start camera, ask for camera permissions
-                    ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.CAMERA),
-                        REQUEST_CAMERA_PERMISSION)
                 }
             }
             else {
@@ -192,18 +196,26 @@ private fun dispatchTakePictureIntent() {
     // Receive the permissions request result
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
+        var allPermissionsGranted = true
+
         when (requestCode) {
-            REQUEST_CAMERA_PERMISSION ->{
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    //call camera
+            REQUEST_PERMISSION ->{
+                for (i in permissions.indices){
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        allPermissionsGranted = false
+                        if (permissions[i]=="android.permission.CAMERA") {
+                            Toast.makeText(this, getString(R.string.user_deny_text_camera), Toast.LENGTH_SHORT).show()
+                        }
+                        if (permissions[i] =="android.permission.WRITE_EXTERNAL_STORAGE"){
+                            Toast.makeText(this, getString(R.string.user_deny_text_write), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                if (allPermissionsGranted){
                     dispatchTakePictureIntent()
                 }
-
-                else{
-                    Toast.makeText(this, getString(R.string.user_deny_text), Toast.LENGTH_SHORT).show()
-                }
-                return
             }
+
         }
     }
 
