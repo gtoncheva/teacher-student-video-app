@@ -14,23 +14,20 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,10 +41,10 @@ class MainActivity : AppCompatActivity() {
     val REQUEST_TAKE_PHOTO = 12
     lateinit var currentPhotoPath: String
     val arrayOfFiles: MutableList<String> = ArrayList()
-    //initialize listview
-    lateinit var listviewOfFiles: ListView
-    //initialize adapter
-    lateinit var arrayAdapter: ArrayAdapter<String>
+    val arrayOfFileDates: MutableList<String> = ArrayList()
+
+    //initialize Recyclerview+Adapter
+    private var mAdapter: PictureListAdapter? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -287,6 +284,7 @@ private fun dispatchTakePictureIntent() {
             userImageDirectory.mkdir()
             Log.v("DirectoryCreationCheck", "(created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
         }
+
         var counts = File(currentPhotoPath).listFiles().count().toString()
         Log.v("DirectoryCreationCount", "Number of images in folder: " + counts)
         Log.v("DirectoryCreationCheck", "(already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
@@ -298,8 +296,7 @@ private fun dispatchTakePictureIntent() {
 
         //Array path set up
         val path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
-        //set listview
-        listviewOfFiles = findViewById(R.id.list_view_for_images)
+
         //directory find
         val directory = File(path)
 
@@ -316,6 +313,9 @@ private fun dispatchTakePictureIntent() {
                 Log.v("Count Files", "Not empty, Number of pics in folder: " + files.size)
                 for (i in files.indices) {
                     arrayOfFiles.add(files[i].name)
+                    //ADD TO FILE DATE ARRAY
+                    val formatter = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS")
+                    arrayOfFileDates.add(formatter.format(files[i].lastModified()))
                     Log.v("Count Files", "Added FileName:" + files[i].name)
                 }
 
@@ -338,20 +338,36 @@ private fun dispatchTakePictureIntent() {
     override fun onResume() {
         super.onResume()
 
-        //clear arraylist and get directory count
-        //clear arraylist
-        arrayOfFiles.clear()
-        //get number of files in directory
-        countFilesinDirectoryandImageview()
-        //set adapter
-        arrayAdapter = ArrayAdapter<String>(
-            this,
-            android.R.layout.simple_list_item_1,
-            arrayOfFiles
-        )
-        listviewOfFiles.adapter = arrayAdapter
-        arrayAdapter.notifyDataSetChanged()
+        val path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
 
+        Log.v("ArrayCheck", "CURRENT PATH OUTSIDE OF LOOP: " + path)
+
+        //get directory count
+        countFilesinDirectoryandImageview()
+
+        if(mAdapter==null){
+            //IF CHECK IF ADAPTER IS NULL THEN MAKE IT, IF NOT USE SET FUNCTIONS, THEN UPDATE IT WITH NOTIFYDATASETCHANGE IN OTHER CLASS
+            mAdapter = PictureListAdapter(this, path, arrayOfFiles, arrayOfFileDates)
+            Log.v("ArrayCheck", "CURRENT PATH NEW: " + path)
+            // Connect the adapter with the RecyclerView.
+            recyclerview.adapter = mAdapter
+            //layout manager
+            recyclerview.layoutManager = LinearLayoutManager(this)
+        }
+        else{
+            Log.v("ArrayCheck", "CURRENT PATH OLD: " + path)
+
+            //set functions
+            arrayOfFiles.clear()
+            countFilesinDirectoryandImageview()
+            mAdapter!!.setNewListOfFiles(path,arrayOfFiles,arrayOfFileDates)
+
+        }
+
+//check list also to see why duplicate
+        //get picasso fir images
+
+        Log.v("ArrayCheck", "array dates: " + arrayOfFileDates)
         Log.v("ArrayCheck", "array result: " + arrayOfFiles)
 
     }
