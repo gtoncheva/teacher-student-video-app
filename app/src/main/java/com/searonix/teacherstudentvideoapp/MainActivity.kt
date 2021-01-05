@@ -296,8 +296,7 @@ private fun dispatchTakePictureIntent() {
 
         //Array path set up
         val path = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/${Firebase.auth.uid}"
-        //set listview???
-        //listviewOfFiles = findViewById(R.id.recyclerview)
+
         //directory find
         val directory = File(path)
 
