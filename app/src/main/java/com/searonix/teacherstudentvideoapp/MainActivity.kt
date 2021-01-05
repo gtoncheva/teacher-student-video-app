@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
     val arrayOfFileDates: MutableList<String> = ArrayList()
 
     //initialize Recyclerview+Adapter
-    private lateinit var mRecyclerView: RecyclerView
     private var mAdapter: PictureListAdapter? = null
 
 
@@ -286,8 +285,6 @@ private fun dispatchTakePictureIntent() {
             Log.v("DirectoryCreationCheck", "(created) LOCATION OF DIRECTORY: " +currentPhotoPath + " DIRECTORY IS: " + userImageDirectory.exists())
         }
 
-        //set adapter here and send directory over??
-
         var counts = File(currentPhotoPath).listFiles().count().toString()
         Log.v("DirectoryCreationCount", "Number of images in folder: " + counts)
         Log.v("DirectoryCreationCheck", "(already exists) LOCATION OF DIRECTORY: " +currentPhotoPath)
@@ -350,15 +347,13 @@ private fun dispatchTakePictureIntent() {
         countFilesinDirectoryandImageview()
 
         if(mAdapter==null){
-            // Create recycler view
-            mRecyclerView = recyclerview
             //IF CHECK IF ADAPTER IS NULL THEN MAKE IT, IF NOT USE SET FUNCTIONS, THEN UPDATE IT WITH NOTIFYDATASETCHANGE IN OTHER CLASS
             mAdapter = PictureListAdapter(this, path, arrayOfFiles, arrayOfFileDates)
             Log.v("ArrayCheck", "CURRENT PATH NEW: " + path)
             // Connect the adapter with the RecyclerView.
-            mRecyclerView.adapter = mAdapter
+            recyclerview.adapter = mAdapter
             //layout manager
-            mRecyclerView.layoutManager = LinearLayoutManager(this)
+            recyclerview.layoutManager = LinearLayoutManager(this)
         }
         else{
             Log.v("ArrayCheck", "CURRENT PATH OLD: " + path)
