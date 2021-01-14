@@ -1,16 +1,16 @@
 package com.searonix.teacherstudentvideoapp
 
 
+import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.wordlist_item.view.*
@@ -37,7 +37,7 @@ class PictureListAdapter(context: Context, var imageDirectory: String, var listO
         return listOfFiles.size
     }
 
-//MAKE IT ONE SET FUNCTIO THAT RETURNS BOTH
+//MAKE IT ONE SET FUNCTION THAT RETURNS BOTH
     fun setNewListOfFiles(newDirectory: String, newListFileNames: MutableList<String>, newListFileDates: MutableList<String>) {
     imageDirectory = newDirectory
     listOfFiles = newListFileNames
@@ -49,7 +49,9 @@ class PictureListAdapter(context: Context, var imageDirectory: String, var listO
 
         // Retrieve the data for that position (wrong thing to use maybe here? maybe make class of all 3 things??)
         // Add the data to the view holder
-        val imgFile = File("$imageDirectory"+ "/" + "${listOfFiles[position]}")
+        val imgFileString = "$imageDirectory"+ "/" + "${listOfFiles[position]}"
+
+        val imgFile = File(imgFileString)
 
         Log.v("ArrayCheck", "file added at path DIRECTORY: " + imageDirectory)
         Log.v("ArrayCheck", "file added at path LISTOFFILES[POSITION]: " + "${listOfFiles[position]}")
@@ -61,7 +63,16 @@ class PictureListAdapter(context: Context, var imageDirectory: String, var listO
         holder.imageName.text = listOfFiles[position]
         holder.imageDate.text = imageDates[position]
 
-    }
+        holder.imageView.setOnClickListener{
+            //intent
+            val activity = holder.imageView.context as Activity
+            val intent = Intent(activity as Context, PictureDisplay::class.java)
+            intent.putExtra(Intent.EXTRA_TEXT, imgFileString)
+            //start new activity with intent
+            startActivity(activity, intent, null)
 
+        }
+
+    }
 
 }
