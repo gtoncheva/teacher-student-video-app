@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
@@ -50,6 +49,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // toolbar is defined in the layout file
+        var toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_picture_display)
+        setSupportActionBar(toolbar)
+        //toolbar.bringToFront()
+
 
         //Action Button for Camera
         //on buttonpress, check if there is a new photo taken. If yes, display the photo on the screen.

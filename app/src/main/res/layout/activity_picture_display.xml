@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <include layout="@layout/toolbar_picture_display"
+            app:layout_constraintBottom_toTopOf="@id/picture_display" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/picture_display"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize"
+        app:layout_constraintTop_toBottomOf="@layout/toolbar_picture_display"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:padding="4dp"
+        />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
