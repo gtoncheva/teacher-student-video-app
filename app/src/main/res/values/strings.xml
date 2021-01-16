@@ -11,4 +11,5 @@
     <string name="user_deny_text_camera">You cannot take pictures as you have chosen to deny camera permission.</string>
     <string name="user_deny_text_write">You cannot take pictures as you have chosen to deny writing external storage permission.</string>
     <string name="fileprovider_authority_label">com.searonix.teacherstudentvideoapp.fileprovider</string>
+    <string name="image_gallery_label">Image Gallery</string>
 </resources>
