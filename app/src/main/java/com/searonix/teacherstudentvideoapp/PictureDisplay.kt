@@ -17,7 +17,7 @@ class PictureDisplay(): AppCompatActivity() {
         // Get a support ActionBar corresponding to this toolbar and enable the Up button
         var toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar_picture_display)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = "Image Gallery"
+        supportActionBar?.title = getString(R.string.image_gallery_label)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         var imageSource = intent?.getStringExtra(Intent.EXTRA_TEXT)
