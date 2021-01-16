@@ -65,11 +65,10 @@ class PictureListAdapter(context: Context, var imageDirectory: String, var listO
 
         holder.imageView.setOnClickListener{
             //intent
-            val activity = holder.imageView.context as Activity
-            val intent = Intent(activity as Context, PictureDisplay::class.java)
+            val intent = Intent(holder.imageView.context as Context, PictureDisplay::class.java)
             intent.putExtra(Intent.EXTRA_TEXT, imgFileString)
             //start new activity with intent
-            startActivity(activity, intent, null)
+            startActivity(holder.imageView.context, intent, null)
 
         }
 

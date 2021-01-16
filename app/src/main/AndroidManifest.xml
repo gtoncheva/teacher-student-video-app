@@ -18,7 +18,10 @@
         </activity>
         <activity android:name=".ProfileActivity"></activity>
         <activity android:name=".EditProfile"></activity>
-        <activity android:name=".PictureDisplay"></activity>
+        <activity
+            android:name=".PictureDisplay"
+            android:parentActivityName=".MainActivity">
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

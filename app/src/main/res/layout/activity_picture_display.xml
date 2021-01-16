@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:text="Back"
-        app:layout_constraintStart_toStartOf="@+id/picture_display"
-        app:layout_constraintTop_toTopOf="@+id/picture_display" />
+        >
+
+        <include layout="@layout/toolbar_picture_display"
+            app:layout_constraintBottom_toTopOf="@id/picture_display" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/picture_display"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/picture_display"
+        android:paddingTop="?attr/actionBarSize"
+        app:layout_constraintTop_toBottomOf="@layout/toolbar_picture_display"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:padding="5dp"
         />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
